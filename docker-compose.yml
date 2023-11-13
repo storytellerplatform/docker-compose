@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  web:
+    container_name: "storyteller-frontend"
+    build:
+      context: ./storytellerFrontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./storytellerFrontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+  server:
+    container_name: "storyteller-backend"
+    build:
+      context: ./storytellerBackend/storyteller
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/storyteller
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+  db:
+    container_name: "postgres"
+    image: postgres:16.0-alpine3.18
+    restart: always
+    environment:
+      POSTGRES_DB: storyteller
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+
+#  dbGUI:
+#    container_name: 'pgadmin'
+#    image: dpage/pgadmin4
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: "047633597q@gmail.com"
+#      PGADMIN_DEFAULT_PASSWORD: "onandon"
+#    ports:
+#      - "16543:80"
+#    depends_on:
+#      - db
